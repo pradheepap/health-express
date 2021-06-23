@@ -1,5 +1,5 @@
 
-# SERVERLESS NODEJS BOILER PLATE TEMPLATE
+# Health Express
 
 This is the boiler plate template for nodejs based serverless projects
 
