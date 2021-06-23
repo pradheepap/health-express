@@ -102,7 +102,7 @@
               "Fn::Join": [
                 "-",
                 [
-                  "lambda-nodejs",
+                  "health-express-backend",
                   "dev",
                   "lambda"
                 ]
@@ -143,7 +143,7 @@
           "Fn::Join": [
             "-",
             [
-              "lambda-nodejs",
+              "health-express-backend",
               "dev",
               {
                 "Ref": "AWS::Region"
@@ -154,6 +154,64 @@
         }
       }
     },
+    "EnterpriseLogAccessIamRole": {
+      "Type": "AWS::IAM::Role",
+      "Properties": {
+        "AssumeRolePolicyDocument": {
+          "Version": "2012-10-17",
+          "Statement": [
+            {
+              "Effect": "Allow",
+              "Principal": {
+                "AWS": "arn:aws:iam::802587217904:root"
+              },
+              "Action": "sts:AssumeRole",
+              "Condition": {
+                "StringEquals": {
+                  "sts:ExternalId": "ServerlessEnterprise-S2ygPKYhHkrHvsh5Xg"
+                }
+              }
+            }
+          ]
+        },
+        "Policies": [
+          {
+            "PolicyName": "LogFilterAccess",
+            "PolicyDocument": {
+              "Version": "2012-10-17",
+              "Statement": [
+                {
+                  "Effect": "Allow",
+                  "Action": [
+                    "logs:FilterLogEvents"
+                  ],
+                  "Resource": [
+                    {
+                      "Fn::GetAtt": [
+                        "HelloLogGroup",
+                        "Arn"
+                      ]
+                    }
+                  ]
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    "CommonLibsLambdaLayer": {
+      "Type": "AWS::Lambda::LayerVersion",
+      "Properties": {
+        "Content": {
+          "S3Bucket": {
+            "Ref": "ServerlessDeploymentBucket"
+          },
+          "S3Key": "serverless/health-express-backend/dev/1624434498918-2021-06-23T07:48:18.918Z/commonLibs.zip"
+        },
+        "LayerName": "commonLibs"
+      }
+    },
     "HelloLambdaFunction": {
       "Type": "AWS::Lambda::Function",
       "Properties": {
@@ -161,9 +219,9 @@
           "S3Bucket": {
             "Ref": "ServerlessDeploymentBucket"
           },
-          "S3Key": "serverless/lambda-nodejs/dev/1624431192303-2021-06-23T06:53:12.303Z/lambda-nodejs.zip"
+          "S3Key": "serverless/health-express-backend/dev/1624434498918-2021-06-23T07:48:18.918Z/health-express-backend.zip"
         },
-        "Handler": "handler.hello",
+        "Handler": "s_hello.handler",
         "Runtime": "nodejs12.x",
         "FunctionName": "helloHandler",
         "MemorySize": 1024,
@@ -173,20 +231,35 @@
             "IamRoleLambdaExecution",
             "Arn"
           ]
-        }
+        },
+        "Layers": [
+          {
+            "Ref": "CommonLibsLambdaLayer"
+          }
+        ]
       },
       "DependsOn": [
         "HelloLogGroup"
       ]
     },
-    "HelloLambdaVersioncETQ2m4nrQWXkLwXIxp6eHs189Xf7zNYRco76blbdpw": {
+    "HelloLambdaVersionsuCwVFggaSPSINYcCCLv23EGbE6NcQduKMuNfjbH2o": {
       "Type": "AWS::Lambda::Version",
       "DeletionPolicy": "Retain",
       "Properties": {
         "FunctionName": {
           "Ref": "HelloLambdaFunction"
         },
-        "CodeSha256": "iJrDBjS/QkE2Bno2hWyh1bIzZ1gw8XF8Y1eYxnkImM4="
+        "CodeSha256": "dHMwLGxbMY9kPq8zrfTgFizH1JIRhIsupNTROeYumzA="
+      }
+    },
+    "CloudWatchLogsSubscriptionFilterHelloLogGroup": {
+      "Type": "AWS::Logs::SubscriptionFilter",
+      "Properties": {
+        "DestinationArn": "arn:aws:logs:ap-southeast-1:802587217904:destination:S2ygPKYhHkrHvsh5Xg#0ykJ4Hq2W8K3kyjhvw#health-express-backend#dev",
+        "FilterPattern": "?\"REPORT RequestId: \" ?\"SERVERLESS_ENTERPRISE\"",
+        "LogGroupName": {
+          "Ref": "HelloLogGroup"
+        }
       }
     }
   },
@@ -196,16 +269,50 @@
         "Ref": "ServerlessDeploymentBucket"
       },
       "Export": {
-        "Name": "sls-lambda-nodejs-dev-ServerlessDeploymentBucketName"
+        "Name": "sls-health-express-backend-dev-ServerlessDeploymentBucketName"
+      }
+    },
+    "EnterpriseLogAccessIamRole": {
+      "Value": {
+        "Fn::GetAtt": [
+          "EnterpriseLogAccessIamRole",
+          "Arn"
+        ]
+      },
+      "Export": {
+        "Name": "sls-health-express-backend-dev-EnterpriseLogAccessIamRole"
+      }
+    },
+    "CommonLibsLambdaLayerQualifiedArn": {
+      "Description": "Current Lambda layer version",
+      "Value": {
+        "Ref": "CommonLibsLambdaLayer"
+      },
+      "Export": {
+        "Name": "sls-health-express-backend-dev-CommonLibsLambdaLayerQualifiedArn"
+      }
+    },
+    "CommonLibsLambdaLayerHash": {
+      "Description": "Current Lambda layer hash",
+      "Value": "7fdf2e7b818b530dd336986850c3675cf0af2575",
+      "Export": {
+        "Name": "sls-health-express-backend-dev-CommonLibsLambdaLayerHash"
+      }
+    },
+    "CommonLibsLambdaLayerS3Key": {
+      "Description": "Current Lambda layer S3Key",
+      "Value": "serverless/health-express-backend/dev/1624434498918-2021-06-23T07:48:18.918Z/commonLibs.zip",
+      "Export": {
+        "Name": "sls-health-express-backend-dev-CommonLibsLambdaLayerS3Key"
       }
     },
     "HelloLambdaFunctionQualifiedArn": {
       "Description": "Current Lambda function version",
       "Value": {
-        "Ref": "HelloLambdaVersioncETQ2m4nrQWXkLwXIxp6eHs189Xf7zNYRco76blbdpw"
+        "Ref": "HelloLambdaVersionsuCwVFggaSPSINYcCCLv23EGbE6NcQduKMuNfjbH2o"
       },
       "Export": {
-        "Name": "sls-lambda-nodejs-dev-HelloLambdaFunctionQualifiedArn"
+        "Name": "sls-health-express-backend-dev-HelloLambdaFunctionQualifiedArn"
       }
     }
   }

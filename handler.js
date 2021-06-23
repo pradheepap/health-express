@@ -1,5 +1,15 @@
 'use strict';
 
-module.exports.hello = async (event) => {
-  return { message: 'Lambda Event!', event };
+const _ = require("lodash");
+const moment = require("moment");
+
+module.exports.hello = async (event, context, callback) => {
+  const curried = _.curry(calculateDate);
+  console.log(`Event : ${curried(moment().format())(event)}`)
+  callback(null, curried(moment().format())(event));
+};
+const calculateDate = (datetime, days)=> {
+  return moment()
+    .add(days, "days")
+    .format("Do MMMM YYYY, h:mm:ss a");
 };

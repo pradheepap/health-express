@@ -1,0 +1,27 @@
+{
+  "name": "health-express",
+  "version": "1.0.0",
+  "description": "Health Express",
+  "main": "handler.js",
+  "scripts": {
+    "test": "npm run test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/pradheepap/health-express.git"
+  },
+  "keywords": [
+    "health",
+    "recipes"
+  ],
+  "author": "Pradheepa",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/pradheepap/health-express/issues"
+  },
+  "homepage": "https://github.com/pradheepap/health-express#readme",
+  "dependencies": {
+    "lodash": "^4.17.21",
+    "moment": "^2.29.1"
+  }
+}

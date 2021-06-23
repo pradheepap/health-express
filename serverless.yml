@@ -1,4 +1,7 @@
-service: lambda-nodejs
+org: pradheepa
+app: health-express
+service: health-express-backend
+
 frameworkVersion: '2'
 variablesResolutionMode: 20210326
 configValidationMode: error
@@ -35,10 +38,12 @@ provider:
 #    variable1: value1
 
 # you can add packaging information here
-#package:
-#  patterns:
-#    - '!exclude-me.js'
-#    - '!exclude-me-dir/**'
+package:
+ patterns:
+   - '!package.json'
+   - '!README.MD'
+   - '!package-lock.json'
+  #  - '!node_modules/**'
 #    - include-me.js
 #    - include-me-dir/**
 
@@ -46,6 +51,11 @@ functions:
   hello:
     handler: handler.hello
     name: helloHandler
+    layers:
+      - {Ref: CommonLibsLambdaLayer}
+layers:
+  commonLibs:
+    path: cicd/resources/layer
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details
